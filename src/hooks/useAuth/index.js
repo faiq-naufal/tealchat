@@ -69,6 +69,7 @@ export const useAuthProvider = (userData) => {
         isAuthReady = true;
       } else {
         if (!user) {
+          redirectTo("/accounts/signin");
           cookie.remove("token");
           setUser(null);
         } else {

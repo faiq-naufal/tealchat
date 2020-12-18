@@ -3,9 +3,7 @@ import { firebaseAdmin } from "../../../config/firebase/admin";
 const validateAuth = async (token) => {
   try {
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(token, true);
-
     const result = await firebaseAdmin.auth().getUser(decodedToken.uid);
-
     const userData = {
       uid: result.uid,
       name: result.displayName,
@@ -16,7 +14,7 @@ const validateAuth = async (token) => {
     return { userData };
   } catch (error) {
     console.log("Error getting document", error);
-    return { error };
+    return error;
   }
 };
 
@@ -31,6 +29,15 @@ export default async (req, res) => {
     }
 
     const result = await validateAuth(token);
+
+    if (result.errorInfo) {
+      return res.status(500).send({
+        error: result.errorInfo.code,
+        errorCode: 500,
+        message: result.errorInfo.message,
+      });
+    }
+
     return res.status(200).send(result);
   } catch (error) {
     return res.status(500).send({

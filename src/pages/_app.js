@@ -87,16 +87,23 @@ CustomApp.getInitialProps = async (appContext) => {
 
         const user = await fetch(`${origin}/api/auth`, {
           headers,
-        }).then((res) => res.json());
+        })
+          .then((res) => res.json())
+          .catch((error) => {
+            console.log(error);
+            redirectAuth(ctx, "/accounts/signin");
+          });
 
-        if (
-          (user.userData && !isProtectedRoute) ||
-          (user.userData && isForbiddenRoute)
-        ) {
-          redirectAuth(ctx, "/chat");
+        if (user.userData) {
+          if (
+            (user.userData && !isProtectedRoute) ||
+            (user.userData && isForbiddenRoute)
+          ) {
+            redirectAuth(ctx, "/chat");
+          }
+
+          return { ...user, ...appProps };
         }
-
-        return { ...user, ...appProps };
       } catch (error) {
         console.log(error);
         cookies.set("token", "", { expires: new Date() });

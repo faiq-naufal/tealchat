@@ -12,6 +12,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { NextSeo } from "next-seo";
 import { useAuth } from "../../../hooks/useAuth";
 import AuthLayout from "../../../components/AuthLayout";
 import Link from "../../../components/Link";
