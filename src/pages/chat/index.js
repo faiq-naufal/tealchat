@@ -31,7 +31,11 @@ import { IoChatbubblesOutline } from "@react-icons/all-files/io5/IoChatbubblesOu
 import { v4 as uuidv4 } from "uuid";
 import { IoPaperPlaneSharp } from "@react-icons/all-files/io5/IoPaperPlaneSharp";
 import DarkModeSwitcher from "../../components/DarkModeSwitcher";
-import { firebase, firebaseDB } from "../../config/firebase/client";
+import {
+  firebase,
+  firebaseDB,
+  firebaseAuth,
+} from "../../config/firebase/client";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Chat() {
@@ -65,7 +69,7 @@ export default function Chat() {
     if (message) {
       const form = event.target;
 
-      const { uid, name, photoProfile } = auth.user;
+      const { uid, name, photoProfile } = currentUser;
 
       const data = {
         uid,
@@ -77,7 +81,6 @@ export default function Chat() {
 
       //prevent multiple submission when user hit enter multiple times
       form.reset();
-
       await firebaseDB.collection("messages").add(data);
     }
   };
@@ -112,6 +115,12 @@ export default function Chat() {
         );
         setIsLoadingChat(false);
       });
+
+    firebaseAuth.onAuthStateChanged((user) => {
+      if (!user) {
+        unsubscribe();
+      }
+    });
 
     return () => unsubscribe();
   }, []);

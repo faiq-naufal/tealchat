@@ -59,14 +59,17 @@ export const redirectAuth = (ctx, location) => {
 };
 
 CustomApp.getInitialProps = async (appContext) => {
+  const tokenName = "tokenName";
+
+  const { ctx } = appContext;
   // calls page's `getInitialProps` and fills `appProps.pageProps`
   const appProps = await App.getInitialProps(appContext);
-  const { ctx } = appContext;
+
   const { req, res, pathname } = ctx;
 
-  if (req) {
+  if (req && typeof window === "undefined") {
     const cookies = new Cookies(req, res);
-    const token = cookies.get("token");
+    const token = cookies.get(tokenName);
 
     const isProtectedRoute =
       pathname !== "/accounts/signin" && pathname !== "/accounts/signup";
@@ -85,7 +88,7 @@ CustomApp.getInitialProps = async (appContext) => {
 
         const { origin } = absoluteUrl(req);
 
-        const user = await fetch(`${origin}/api/auth`, {
+        const result = await fetch(`${origin}/api/auth`, {
           headers,
         })
           .then((res) => res.json())
@@ -94,19 +97,19 @@ CustomApp.getInitialProps = async (appContext) => {
             redirectAuth(ctx, "/accounts/signin");
           });
 
-        if (user.userData) {
+        if (result.userData) {
           if (
-            (user.userData && !isProtectedRoute) ||
-            (user.userData && isForbiddenRoute)
+            (result.userData && !isProtectedRoute) ||
+            (result.userData && isForbiddenRoute)
           ) {
             redirectAuth(ctx, "/chat");
           }
 
-          return { ...user, ...appProps };
+          return { ...result, ...appProps };
         }
       } catch (error) {
         console.log(error);
-        cookies.set("token", "", { expires: new Date() });
+        cookies.set(tokenName, "", { expires: new Date() });
         redirectAuth(ctx, "/accounts/signin");
       }
     }

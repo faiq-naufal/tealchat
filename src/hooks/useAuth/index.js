@@ -6,6 +6,8 @@ import { firebase, firebaseAuth } from "../../config/firebase/client";
 const authContext = createContext({ user: null });
 const { Provider } = authContext;
 
+const tokenName = "tokenName";
+
 export const AuthProvider = ({ user, children }) => {
   const auth = useAuthProvider(user);
 
@@ -32,6 +34,7 @@ export const useAuthProvider = (userData) => {
         }
       })
       .catch((error) => {
+        console.log(error);
         return { error };
       });
   };
@@ -45,6 +48,7 @@ export const useAuthProvider = (userData) => {
         }
       })
       .catch((error) => {
+        console.log(error);
         return { error };
       });
   };
@@ -61,30 +65,21 @@ export const useAuthProvider = (userData) => {
   const signOut = () =>
     firebaseAuth.signOut().then(() => redirectTo("/accounts/signin"));
 
-  let isAuthReady = false;
-
   const onIdTokenChanged = () => {
-    return firebaseAuth.onIdTokenChanged(async (user) => {
-      if (isAuthReady === false) {
-        isAuthReady = true;
+    return firebaseAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const token = await user.getIdToken();
+        cookie.set(tokenName, token);
+        const userData = {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          photoProfile: user.photoURL ? user.photoURL : null,
+        };
+        setUser(userData);
       } else {
-        if (!user) {
-          redirectTo("/accounts/signin");
-          cookie.remove("token");
-          setUser(null);
-        } else {
-          const token = await user.getIdToken();
-
-          const userData = {
-            uid: user.uid,
-            name: user.displayName,
-            email: user.email,
-            photoProfile: user.photoURL ? user.photoURL : null,
-          };
-
-          setUser(userData);
-          cookie.set("token", token);
-        }
+        cookie.remove(tokenName);
+        setUser(null);
       }
     });
   };
