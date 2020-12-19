@@ -95,11 +95,12 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!isLoadingChat) {
+      scrollToBottom();
+    }
+  }, [messages, isLoadingChat]);
 
   useEffect(() => {
-    setIsLoadingChat(true);
     const unsubscribe = firebaseDB
       .collection("messages")
       .orderBy("createdAt", "asc")
