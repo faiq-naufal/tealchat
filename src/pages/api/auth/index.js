@@ -3,14 +3,7 @@ import { firebaseAdmin } from "../../../config/firebase/admin";
 const validateAuth = async (token) => {
   const decodedToken = await firebaseAdmin.auth().verifyIdToken(token, true);
   const result = await firebaseAdmin.auth().getUser(decodedToken.uid);
-  const userData = {
-    uid: result.uid,
-    name: result.displayName,
-    email: result.email,
-    photoProfile: result.photoURL ? result.photoURL : null,
-  };
-
-  return { userData };
+  return { user: result };
 };
 
 export default async (req, res) => {

@@ -69,7 +69,7 @@ export default function Chat() {
     if (message) {
       const form = event.target;
 
-      const { uid, name, photoProfile } = currentUser;
+      const { uid, displayName: name, photoURL: photoProfile } = currentUser;
 
       const data = {
         uid,
@@ -296,7 +296,8 @@ export default function Chat() {
                                 >
                                   {isCurrentUser
                                     ? `You`
-                                    : name[0].toUpperCase() + name.substring(1)}
+                                    : name.charAt(0).toUpperCase() +
+                                      name.substring(1)}
                                 </Text>
 
                                 <Box

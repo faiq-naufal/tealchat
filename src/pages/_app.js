@@ -16,7 +16,7 @@ const setDocHeight = () => {
   document.documentElement.style.setProperty("--vh", `${vh}px`);
 };
 
-export default function CustomApp({ Component, pageProps, userData = null }) {
+export default function CustomApp({ Component, pageProps, user = null }) {
   const router = useRouter();
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function CustomApp({ Component, pageProps, userData = null }) {
 
   return (
     <Theme>
-      <AuthProvider user={userData}>
+      <AuthProvider user={user}>
         <Component {...pageProps} />
       </AuthProvider>
     </Theme>
@@ -91,16 +91,19 @@ CustomApp.getInitialProps = async (appContext) => {
         const result = await fetch(`${origin}/api/auth`, {
           headers,
         })
-          .then((res) => res.json())
+          .then((res) => {
+            console.log(res);
+            return res.json();
+          })
           .catch((error) => {
             console.log(error);
             redirectAuth(ctx, "/accounts/signin");
           });
 
-        if (result.userData) {
+        if (result.user) {
           if (
-            (result.userData && !isProtectedRoute) ||
-            (result.userData && isForbiddenRoute)
+            (result.user && !isProtectedRoute) ||
+            (result.user && isForbiddenRoute)
           ) {
             redirectAuth(ctx, "/chat");
           }

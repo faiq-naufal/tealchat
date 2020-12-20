@@ -25,12 +25,16 @@ export const useAuthProvider = (userData) => {
   const signUp = ({ name, email, password }) => {
     return firebaseAuth
       .createUserWithEmailAndPassword(email, password)
-      .then(async (doc) => {
+      .then((doc) => {
         if (doc.user) {
-          await doc.user.updateProfile({
-            displayName: name,
-          });
-          redirectTo("/chat");
+          return doc.user
+            .updateProfile({
+              displayName: name,
+              photoURL: "",
+            })
+            .then(() => {
+              redirectTo("/chat");
+            });
         }
       })
       .catch((error) => {
@@ -65,18 +69,12 @@ export const useAuthProvider = (userData) => {
   const signOut = () =>
     firebaseAuth.signOut().then(() => redirectTo("/accounts/signin"));
 
-  const onIdTokenChanged = () => {
+  const onAuthStateChanged = () => {
     return firebaseAuth.onAuthStateChanged(async (user) => {
       if (user) {
         const token = await user.getIdToken();
         cookie.set(tokenName, token);
-        const userData = {
-          uid: user.uid,
-          name: user.displayName,
-          email: user.email,
-          photoProfile: user.photoURL ? user.photoURL : null,
-        };
-        setUser(userData);
+        setUser(user);
       } else {
         cookie.remove(tokenName);
         setUser(null);
@@ -85,7 +83,7 @@ export const useAuthProvider = (userData) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onIdTokenChanged();
+    const unsubscribe = onAuthStateChanged();
 
     return () => unsubscribe();
   }, []);
