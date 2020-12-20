@@ -63,6 +63,7 @@ export default function SignUp() {
                   name="name"
                   type="text"
                   variant="filled"
+                  autoComplete="off"
                   placeholder="Account name"
                 />
                 {errorField.name && (
@@ -84,6 +85,7 @@ export default function SignUp() {
                   name="email"
                   type="email"
                   variant="filled"
+                  autoComplete="off"
                   placeholder="example@email.com"
                 />
                 {errorField.email && (

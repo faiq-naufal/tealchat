@@ -409,6 +409,7 @@ export default function Chat() {
                       height={["3rem", "3.5rem"]}
                       pr="4rem"
                       ref={register}
+                      autoComplete="off"
                       placeholder="Drop a message to others"
                       _placeholder={{ color: "gray.400" }}
                       _selection={{ background: "teal.600", color: "white" }}
