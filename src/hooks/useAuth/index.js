@@ -69,8 +69,9 @@ export const useAuthProvider = (userData) => {
   const signOut = () =>
     firebaseAuth.signOut().then(() => redirectTo("/accounts/signin"));
 
-  const onAuthStateChanged = () => {
-    return firebaseAuth.onAuthStateChanged(async (user) => {
+  const onIdTokenChanged = () => {
+    return firebaseAuth.onIdTokenChanged(async (user) => {
+      console.log("onIdTokenChanged");
       if (user) {
         const token = await user.getIdToken();
         cookie.set(tokenName, token);
@@ -83,7 +84,7 @@ export const useAuthProvider = (userData) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged();
+    const unsubscribe = onIdTokenChanged();
 
     return () => unsubscribe();
   }, []);

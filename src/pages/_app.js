@@ -88,17 +88,11 @@ CustomApp.getInitialProps = async (appContext) => {
 
         const { origin } = absoluteUrl(req);
 
-        const result = await fetch(`${origin}/api/auth`, {
+        const response = await fetch(`${origin}/api/auth`, {
           headers,
-        })
-          .then((res) => {
-            console.log(res);
-            return res.json();
-          })
-          .catch((error) => {
-            console.log(error);
-            redirectAuth(ctx, "/accounts/signin");
-          });
+        });
+
+        const result = await response.json();
 
         if (result.user) {
           if (
@@ -107,11 +101,10 @@ CustomApp.getInitialProps = async (appContext) => {
           ) {
             redirectAuth(ctx, "/chat");
           }
-
           return { ...result, ...appProps };
         }
       } catch (error) {
-        console.log(error);
+        console.log("catch2 app error");
         cookies.set(tokenName, "", { expires: new Date() });
         redirectAuth(ctx, "/accounts/signin");
       }
