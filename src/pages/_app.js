@@ -1,10 +1,11 @@
 import App from "next/app";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import "fontsource-inter/400-normal.css";
 import "fontsource-inter/600-normal.css";
 import "fontsource-inter/700-normal.css";
 import { AuthProvider } from "../hooks/useAuth";
+import { DefaultSeo } from "next-seo";
 import Cookies from "cookies";
 import absoluteUrl from "next-absolute-url";
 import NProgress from "nprogress";
@@ -18,6 +19,7 @@ const setDocHeight = () => {
 
 export default function CustomApp({ Component, pageProps, user = null }) {
   const router = useRouter();
+  const [URL, setURL] = useState({});
 
   useEffect(() => {
     NProgress.configure({ showSpinner: false });
@@ -32,6 +34,11 @@ export default function CustomApp({ Component, pageProps, user = null }) {
     window.addEventListener("orientationchange", setDocHeight, true);
     setDocHeight();
 
+    const origin = window.location.origin;
+    const fullURL = window.location.href;
+
+    setURL({ origin, fullURL });
+
     return () => {
       router.events.off("routeChangeStart", routeChangeStart);
       router.events.off("routeChangeComplete", routeChangeComplete);
@@ -45,6 +52,23 @@ export default function CustomApp({ Component, pageProps, user = null }) {
   return (
     <Theme>
       <AuthProvider user={user}>
+        <DefaultSeo
+          description="TealChat is an open source and free simple chat room web application. Drop a message to join the conversation now"
+          canonical={URL.fullURL}
+          openGraph={{
+            description:
+              "TealChat is an open source and free simple chat room web application. Drop a message to join the conversation now",
+            type: "website",
+            locale: "en-US",
+            url: URL.origin,
+            site_name: "TealChat",
+          }}
+          twitter={{
+            handle: "@handle",
+            site: "@site",
+            cardType: "summary_large_image",
+          }}
+        />
         <Component {...pageProps} />
       </AuthProvider>
     </Theme>
@@ -67,6 +91,8 @@ CustomApp.getInitialProps = async (appContext) => {
 
   const { req, res, pathname } = ctx;
 
+  const { origin } = absoluteUrl(req);
+
   if (req && typeof window === "undefined") {
     const cookies = new Cookies(req, res);
     const token = cookies.get(tokenName);
@@ -85,8 +111,6 @@ CustomApp.getInitialProps = async (appContext) => {
           "Context-Type": "application/json",
           Authorization: JSON.stringify({ token: token }),
         };
-
-        const { origin } = absoluteUrl(req);
 
         const response = await fetch(`${origin}/api/auth`, {
           headers,
