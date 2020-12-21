@@ -1,3 +1,14 @@
+import { useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+
 export default function Index() {
-  return <div></div>;
+  const auth = useAuth();
+
+  useEffect(() => {
+    return !auth.user
+      ? auth.redirectTo("/accounts/signin")
+      : auth.redirectTo("/chat");
+  }, []);
+
+  return <></>;
 }

@@ -99,10 +99,9 @@ CustomApp.getInitialProps = async (appContext) => {
 
     const isProtectedRoute =
       pathname !== "/accounts/signin" && pathname !== "/accounts/signup";
-    const isForbiddenRoute = pathname === "/";
 
     if (!token) {
-      if (isProtectedRoute || isForbiddenRoute) {
+      if (isProtectedRoute) {
         redirectAuth(ctx, "/accounts/signin");
       }
     } else {
@@ -119,10 +118,7 @@ CustomApp.getInitialProps = async (appContext) => {
         const result = await response.json();
 
         if (result.user) {
-          if (
-            (result.user && !isProtectedRoute) ||
-            (result.user && isForbiddenRoute)
-          ) {
+          if (result.user && !isProtectedRoute) {
             redirectAuth(ctx, "/chat");
           }
           return { ...result, ...appProps };
